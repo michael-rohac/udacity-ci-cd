@@ -12,13 +12,23 @@ jobs:
       - run:
           name: "Say hello from bash"
           command: "echo hello"
-  print-world:
+  generate-and-share-output:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/base:2020.01
     steps:
-      - run:
-          name: "Say world from Node.js"
-          command: node -e 'console.log(" world!")'
+      - run: echo "hello world" > ~/output.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output.txt
+  access-shared-output:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cat ~/output.txt
+
   echo-env-var:
     docker:
       - image: cimg/base:2020.01
@@ -30,10 +40,12 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  hello-workflow:
+  env-workflow:
     jobs:
-      - print-hello
-      - print-world:
-          requires:
-            - print-hello
       - echo-env-var
+  workspace-workflow:
+    jobs:
+      - generate-and-share-output
+      - access-shared-output:
+          requires:
+            - generate-and-share-output
