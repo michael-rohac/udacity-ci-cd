@@ -1,0 +1,7 @@
+- name: Exercise
+  hosts:
+#    - localhost
+    - ubuntu
+  user: ubuntu
+  roles:
+    - print
