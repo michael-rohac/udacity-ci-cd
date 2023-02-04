@@ -12,7 +12,7 @@ commands:
       param:
         type: string
     steps:
-      - run: echo Parameter -> << parameters.param >>
+      - run: echo Parameter ->   << parameters.param >>
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -53,6 +53,15 @@ jobs:
           name: "Echo MY_ENV_VAR"
           command: echo MY_ENV_VAR - $MY_ENV_VAR
 
+  simulate-failure:
+    <<: *defaults
+    steps:
+      - run: return 1
+      - run:
+          name: on error
+          command: echo "Your pipeline failed"
+          when: on_fail
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
@@ -68,3 +77,7 @@ workflows:
   commands-demo:
     jobs:
       - demo-use-of-commands
+
+  errors-demo:
+    jobs:
+      - simulate-failure
